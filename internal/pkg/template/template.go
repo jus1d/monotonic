@@ -2,8 +2,8 @@ package template
 
 import (
 	"fmt"
-	"monotonic/internal/pkg/models"
 	"monotonic/internal/pkg/translation"
+	"monotonic/internal/storage/models"
 )
 
 func WordCard(word models.Word) string {

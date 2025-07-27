@@ -4,7 +4,7 @@
 
 package translation
 
-import "monotonic/internal/pkg/models"
+import "monotonic/internal/storage/models"
 
 var Words = []models.Word{
 	{ ID: 1, Spanish: "Spanish", English: "English", PoS: "PoS" },

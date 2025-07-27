@@ -5,7 +5,7 @@ import (
 	"errors"
 	"log/slog"
 	"monotonic/internal/pkg/logger/sl"
-	"monotonic/internal/pkg/storage"
+	"monotonic/internal/storage"
 	"strings"
 
 	telegram "github.com/go-telegram-bot-api/telegram-bot-api/v5"

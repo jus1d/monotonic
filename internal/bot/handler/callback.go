@@ -86,8 +86,13 @@ func (h *Handler) OnPractice(ctx context.Context, u telegram.Update) {
 
 func (h *Handler) OnList(ctx context.Context, u telegram.Update) {
 	userID := u.CallbackQuery.From.ID
-	wordIDs, ok := h.storage.GetUserWords(userID)
-	if !ok {
+	wordIDs, err := h.storage.GetUserWords(userID)
+	if err != nil {
+		h.SendTextMessage(userID, "Something went wrong.", markup.Home())
+		return
+	}
+
+	if len(wordIDs) == 0 {
 		h.EditMessage(u.CallbackQuery.Message, "Your learning list is empty.", markup.Home())
 		return
 	}

@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"monotonic/internal/bot/handler"
 	"monotonic/internal/pkg/config"
-	"monotonic/internal/pkg/storage"
+	"monotonic/internal/storage"
 
 	telegram "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -24,12 +24,11 @@ func New(c *config.Config) (*Bot, error) {
 		return nil, err
 	}
 
-	// s, err := storage.New("./db/data.db")
-	// if err != nil {
-	// return nil, err
-	// }
+	s, err := storage.New("./db/data.db")
+	if err != nil {
+		return nil, err
+	}
 
-	s := storage.New()
 	h := handler.New(client, s)
 
 	return &Bot{

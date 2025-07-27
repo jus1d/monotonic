@@ -2,7 +2,7 @@ package markup
 
 import (
 	"fmt"
-	"monotonic/internal/pkg/models"
+	"monotonic/internal/storage/models"
 
 	telegram "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )

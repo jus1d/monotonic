@@ -2,7 +2,7 @@ package translation
 
 import (
 	"math/rand"
-	"monotonic/internal/pkg/models"
+	"monotonic/internal/storage/models"
 
 	"time"
 )
