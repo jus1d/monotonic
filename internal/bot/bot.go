@@ -34,6 +34,8 @@ func New(c *config.Config) (*Bot, error) {
 
 // Run starts the bot and listens for updates using context for cancellation.
 func (b *Bot) Run(ctx context.Context) {
+	b.registerHandlers()
+
 	updates := b.getUpdates()
 
 	slog.Info("bot started", slog.String("username", b.client.Self.UserName))
@@ -42,6 +44,21 @@ func (b *Bot) Run(ctx context.Context) {
 
 	<-ctx.Done()
 	slog.Info("shutting down bot due to context cancellation")
+}
+
+// registerHandlers defines handler functions for different events/updates
+func (b *Bot) registerHandlers() {
+	b.handler.RegisterCommand("start", b.handler.OnCommandStart)
+	b.handler.RegisterCommand("random", b.handler.OnCommandRandom)
+	b.handler.RegisterCommand("practice", func(ctx context.Context, u telegram.Update) {
+		b.handler.SendTextMessage(u.Message.From.ID, "not implemented yet", nil)
+	})
+	b.handler.RegisterCommand("collect", func(ctx context.Context, u telegram.Update) {
+		b.handler.SendTextMessage(u.Message.From.ID, "not implemented yet", nil)
+	})
+
+	b.handler.RegisterCallback("learn_word", b.handler.OnLearnWord)
+	b.handler.RegisterCallback("random_word", b.handler.OnRandomWord)
 }
 
 // getUpdates returns a channel of updates from Telegram, using the given context.
@@ -66,16 +83,10 @@ func (b *Bot) handleUpdates(ctx context.Context, updates telegram.UpdatesChannel
 			}
 
 			if update.Message != nil {
-				switch update.Message.Command() {
-				case "start":
-					b.handler.OnCommandStart(ctx, update)
-				case "random":
-					b.handler.OnCommandRandom(ctx, update)
-				case "practice":
-					b.handler.SendTextMessage(update.Message.From.ID, "not implemented yet", nil)
-				case "collect":
-					b.handler.SendTextMessage(update.Message.From.ID, "not implemented yet", nil)
-				default:
+				cmd := update.Message.Command()
+				if handlerFunc, ok := b.handler.GetCommandHandler(cmd); ok {
+					handlerFunc(ctx, update)
+				} else {
 					b.handler.SendTextMessage(update.Message.From.ID, "brotha eewwww, i didnt get you", nil)
 				}
 			}
@@ -83,13 +94,9 @@ func (b *Bot) handleUpdates(ctx context.Context, updates telegram.UpdatesChannel
 			if update.CallbackQuery != nil {
 				query := update.CallbackData()
 				slog.Info("callback received", slog.String("query", query))
-
-				switch query {
-				case "learn_word":
-					b.handler.OnLearnWord(ctx, update)
-				case "random_word":
-					b.handler.OnRandomWord(ctx, update)
-				default:
+				if handlerFunc, ok := b.handler.GetCallbackHandler(query); ok {
+					handlerFunc(ctx, update)
+				} else {
 					b.handler.SendTextMessage(update.CallbackQuery.From.ID, "where tf you found this button?", nil)
 				}
 			}
