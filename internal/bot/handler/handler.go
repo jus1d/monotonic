@@ -42,6 +42,14 @@ func (h *Handler) GetCommandHandler(cmd string) (CommandHandler, bool) {
 
 func (h *Handler) GetCallbackHandler(data string) (CallbackHandler, bool) {
 	handler, ok := h.callbackHandlers[data]
+	if !ok {
+		for k, v := range h.callbackHandlers {
+			if strings.HasPrefix(data, k) {
+				return v, true
+			}
+		}
+		return handler, false
+	}
 	return handler, ok
 }
 

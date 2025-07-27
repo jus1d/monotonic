@@ -50,15 +50,16 @@ func (b *Bot) Run(ctx context.Context) {
 func (b *Bot) registerHandlers() {
 	b.handler.RegisterCommand("start", b.handler.OnCommandStart)
 	b.handler.RegisterCommand("random", b.handler.OnCommandRandom)
-	b.handler.RegisterCommand("practice", func(ctx context.Context, u telegram.Update) {
-		b.handler.SendTextMessage(u.Message.From.ID, "not implemented yet", nil)
-	})
-	b.handler.RegisterCommand("collect", func(ctx context.Context, u telegram.Update) {
-		b.handler.SendTextMessage(u.Message.From.ID, "not implemented yet", nil)
-	})
+	b.handler.RegisterCommand("collect", b.handler.OnCommandCollect)
+	b.handler.RegisterCommand("practice", b.handler.OnCommandPractice)
+	b.handler.RegisterCommand("list", b.handler.OnCommandList)
 
 	b.handler.RegisterCallback("learn_word", b.handler.OnLearnWord)
 	b.handler.RegisterCallback("random_word", b.handler.OnRandomWord)
+	b.handler.RegisterCallback("collect_accept", b.handler.OnCollectAccept)
+	b.handler.RegisterCallback("collect_skip", b.handler.OnCollectSkip)
+	b.handler.RegisterCallback("practice_answer", b.handler.OnPracticeAnswer)
+	b.handler.RegisterCallback("clear_list", b.handler.OnClearList)
 }
 
 // getUpdates returns a channel of updates from Telegram, using the given context.
