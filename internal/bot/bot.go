@@ -63,9 +63,9 @@ func (b *Bot) registerHandlers() {
 	b.handler.RegisterCallback("home", b.handler.OnHome)
 	b.handler.RegisterCallback("learning_list", b.handler.OnList)
 	b.handler.RegisterCallback("random_word", b.handler.OnRandomWord)
-	b.handler.RegisterCallback("add_to_learning_list", b.handler.OnCollectAccept)
+	b.handler.RegisterCallback("add_to_learning_list:int", b.handler.OnCollectAccept)
 	b.handler.RegisterCallback("skip_word", b.handler.OnCollectSkip)
-	b.handler.RegisterCallback("practice_answer", b.handler.OnPracticeAnswer)
+	b.handler.RegisterCallback("practice_answer:int", b.handler.OnPracticeAnswer)
 	b.handler.RegisterCallback("clear_list", b.handler.OnClearList)
 	b.handler.RegisterCallback("practice_start", b.handler.OnPractice)
 }
