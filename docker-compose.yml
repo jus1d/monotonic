@@ -1,0 +1,10 @@
+services:
+  bot:
+    container_name: monotonic-bot
+    image: monotonic
+    restart: unless-stopped
+    volumes:
+      - ./config:/app/config
+      - ./db:/app/db
+    environment:
+      - CONFIG_PATH=./config/dev.yaml
