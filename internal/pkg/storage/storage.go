@@ -2,7 +2,6 @@ package storage
 
 import (
 	"errors"
-	"log/slog"
 	"monotonic/internal/pkg/models"
 	"monotonic/internal/pkg/translation"
 	"sync"
@@ -32,16 +31,13 @@ func (s *Storage) AddWord(userID int64, wordID int) {
 	s.wordsMu.Lock()
 	defer s.wordsMu.Unlock()
 
-	slog.Debug("add word triggered")
 	if _, ok := s.userWords[userID]; !ok {
 		s.userWords[userID] = []int{wordID}
-		slog.Info("words array", slog.Any("words", s.userWords[userID]), slog.Any("user_id", userID), slog.Any("word_id", wordID))
 		return
 	}
 	words := s.userWords[userID]
 	words = append(words, wordID)
 	s.userWords[userID] = words
-	slog.Info("words array", slog.Any("words", s.userWords[userID]), slog.Any("user_id", userID), slog.Any("word_id", wordID))
 }
 
 func (s *Storage) ClearList(userID int64) {
@@ -57,7 +53,6 @@ func (s *Storage) GetUserWords(userID int64) ([]int, bool) {
 	s.wordsMu.Lock()
 	defer s.wordsMu.Unlock()
 
-	slog.Info("words array", slog.Any("words", s.userWords[userID]))
 	words, ok := s.userWords[userID]
 	return words, ok
 }

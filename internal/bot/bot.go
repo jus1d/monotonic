@@ -93,6 +93,11 @@ func (b *Bot) handleUpdates(ctx context.Context, updates telegram.UpdatesChannel
 
 			if update.Message != nil {
 				command := update.Message.Command()
+				slog.Debug("command triggered",
+					slog.String("command", command),
+					slog.Int64("user_id", update.FromChat().ID),
+					slog.String("username", update.FromChat().UserName),
+				)
 				if handlerFunc, ok := b.handler.GetCommandHandler(command); ok {
 					handlerFunc(ctx, update)
 				} else {
@@ -102,7 +107,11 @@ func (b *Bot) handleUpdates(ctx context.Context, updates telegram.UpdatesChannel
 
 			if update.CallbackQuery != nil {
 				query := update.CallbackData()
-				slog.Debug("callback triggered", slog.String("query", query))
+				slog.Debug("callback triggered",
+					slog.String("query", query),
+					slog.Int64("user_id", update.FromChat().ID),
+					slog.String("username", update.FromChat().UserName),
+				)
 				if handlerFunc, ok := b.handler.GetCallbackHandler(query); ok {
 					handlerFunc(ctx, update)
 					b.handler.DismissCallback(update)

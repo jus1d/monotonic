@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"monotonic/internal/bot/markup"
 	"monotonic/internal/pkg/template"
 	"monotonic/internal/pkg/translation"
@@ -34,7 +33,6 @@ func (h *Handler) OnRandomWord(ctx context.Context, u telegram.Update) {
 }
 
 func (h *Handler) OnCollectAccept(ctx context.Context, u telegram.Update) {
-	slog.Debug("collect accept triggered")
 	query := u.CallbackData()
 	wordID, _ := extractInt(query)
 	userID := u.CallbackQuery.From.ID
