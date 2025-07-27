@@ -4,7 +4,7 @@ import (
 	"context"
 	"monotonic/internal/bot/markup"
 	"monotonic/internal/pkg/template"
-	"monotonic/internal/translation"
+	"monotonic/internal/pkg/translation"
 
 	telegram "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -21,7 +21,7 @@ func (h *Handler) OnCommandStart(ctx context.Context, u telegram.Update) {
 
 func (h *Handler) OnCommandRandom(ctx context.Context, u telegram.Update) {
 	word := translation.GetRandom()
-	content := template.RandomWord(word)
+	content := template.WordCard(word)
 
 	message := telegram.NewMessage(u.Message.Chat.ID, content)
 	message.ParseMode = telegram.ModeHTML
