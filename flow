@@ -1,0 +1,16 @@
+ /start
+    |
+    V
+greetings
+
+
+
+/random -> send a random word card [EASY] and nothing more
+
+/practive -> practice words from user's list (bot send a word, user need to guess translation)
+
+/collect -> collect new words into user's list to practice
+
+
+
+word card:

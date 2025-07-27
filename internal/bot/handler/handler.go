@@ -36,7 +36,7 @@ func (h *Handler) SendMessage(m telegram.MessageConfig) (telegram.Message, bool)
 	return message, true
 }
 
-func (h *Handler) EditMessageText(message *telegram.Message, content string, markup *telegram.InlineKeyboardMarkup) (telegram.Message, error) {
+func (h *Handler) EditMessage(message *telegram.Message, content string, markup *telegram.InlineKeyboardMarkup) (telegram.Message, error) {
 	if message.Text == strings.TrimRight(RemoveHTML(content), "\n") {
 		return *message, ErrNoChanges
 	}

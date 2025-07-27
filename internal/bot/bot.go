@@ -77,6 +77,13 @@ func (b *Bot) handleUpdates(ctx context.Context, updates telegram.UpdatesChannel
 			if update.CallbackQuery != nil {
 				query := update.CallbackData()
 				slog.Info("callback received", slog.String("query", query))
+
+				switch query {
+				case "learn_word":
+					b.handler.OnLearnWord(ctx, update)
+				default:
+					b.handler.SendTextMessage(update.CallbackQuery.From.ID, "where tf you found this button?", nil)
+				}
 			}
 		}
 	}
