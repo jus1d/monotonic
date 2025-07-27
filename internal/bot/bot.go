@@ -69,6 +69,12 @@ func (b *Bot) handleUpdates(ctx context.Context, updates telegram.UpdatesChannel
 				switch update.Message.Command() {
 				case "start":
 					b.handler.OnCommandStart(ctx, update)
+				case "random":
+					b.handler.OnCommandRandom(ctx, update)
+				case "practice":
+					b.handler.SendTextMessage(update.Message.From.ID, "not implemented yet", nil)
+				case "collect":
+					b.handler.SendTextMessage(update.Message.From.ID, "not implemented yet", nil)
 				default:
 					b.handler.SendTextMessage(update.Message.From.ID, "brotha eewwww, i didnt get you", nil)
 				}
@@ -81,6 +87,8 @@ func (b *Bot) handleUpdates(ctx context.Context, updates telegram.UpdatesChannel
 				switch query {
 				case "learn_word":
 					b.handler.OnLearnWord(ctx, update)
+				case "random_word":
+					b.handler.OnRandomWord(ctx, update)
 				default:
 					b.handler.SendTextMessage(update.CallbackQuery.From.ID, "where tf you found this button?", nil)
 				}

@@ -2,7 +2,8 @@ package handler
 
 import (
 	"context"
-	"fmt"
+	"monotonic/internal/bot/markup"
+	"monotonic/internal/pkg/template"
 	"monotonic/internal/translation"
 
 	telegram "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -10,11 +11,14 @@ import (
 
 func (h *Handler) OnLearnWord(ctx context.Context, u telegram.Update) {
 	word := translation.GetRandom()
+	content := template.WordCard(word)
 
-	response := fmt.Sprintf(
-		"<b>%s</b> [%s]\n<i>%s</i>",
-		word.Spanish, word.Transcription, word.English,
-	)
+	h.EditMessage(u.CallbackQuery.Message, content, markup.LearnWord())
+}
 
-	h.EditMessage(u.CallbackQuery.Message, response, LearnWord())
+func (h *Handler) OnRandomWord(ctx context.Context, u telegram.Update) {
+	word := translation.GetRandom()
+	content := template.RandomWord(word)
+
+	h.EditMessage(u.CallbackQuery.Message, content, markup.RandomWord())
 }
