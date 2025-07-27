@@ -84,8 +84,8 @@ func (b *Bot) handleUpdates(ctx context.Context, updates telegram.UpdatesChannel
 			}
 
 			if update.Message != nil {
-				cmd := update.Message.Command()
-				if handlerFunc, ok := b.handler.GetCommandHandler(cmd); ok {
+				command := update.Message.Command()
+				if handlerFunc, ok := b.handler.GetCommandHandler(command); ok {
 					handlerFunc(ctx, update)
 				} else {
 					b.handler.SendTextMessage(update.Message.From.ID, "brotha eewwww, i didnt get you", nil)
@@ -94,7 +94,6 @@ func (b *Bot) handleUpdates(ctx context.Context, updates telegram.UpdatesChannel
 
 			if update.CallbackQuery != nil {
 				query := update.CallbackData()
-				slog.Info("callback received", slog.String("query", query))
 				if handlerFunc, ok := b.handler.GetCallbackHandler(query); ok {
 					handlerFunc(ctx, update)
 					b.handler.DismissCallback(update)
