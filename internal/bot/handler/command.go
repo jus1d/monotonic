@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"monotonic/internal/bot/markup"
-	"monotonic/internal/pkg/storage"
 	"monotonic/internal/pkg/template"
 	"monotonic/internal/pkg/translation"
 	"strings"
@@ -25,6 +24,7 @@ Here is brief tour of what can I do:
 
 	message := telegram.NewMessage(u.Message.Chat.ID, content)
 	message.ParseMode = telegram.ModeHTML
+	message.ReplyMarkup = markup.Menu()
 
 	h.SendMessage(message)
 }
@@ -53,9 +53,9 @@ func (h *Handler) OnCommandCollect(ctx context.Context, u telegram.Update) {
 
 func (h *Handler) OnCommandPractice(ctx context.Context, u telegram.Update) {
 	userID := u.Message.From.ID
-	question, err := translation.GeneratePracticeQuestion(userID)
+	question, err := h.storage.GeneratePracticeQuestion(userID)
 	if err != nil {
-		h.SendTextMessage(userID, "Add some words for learning with /collect first!", nil)
+		h.SendTextMessage(userID, "Add some words for learning with /collect first!", markup.Collect())
 		return
 	}
 
@@ -68,15 +68,15 @@ func (h *Handler) OnCommandPractice(ctx context.Context, u telegram.Update) {
 
 func (h *Handler) OnCommandList(ctx context.Context, u telegram.Update) {
 	userID := u.Message.From.ID
-	wordIDs, ok := storage.GetUserWords(userID)
+	wordIDs, ok := h.storage.GetUserWords(userID)
 	if !ok {
 		h.SendTextMessage(userID, "Your learning list is empty.", nil)
 		return
 	}
 
-	words := make([]string, len(wordIDs), len(wordIDs))
+	words := make([]string, 0)
 	for _, id := range wordIDs {
 		words = append(words, translation.GetWordByID(id).Spanish)
 	}
-	h.SendTextMessage(userID, strings.Join(words, "\n"), nil)
+	h.SendTextMessage(userID, strings.Join(words, "\n"), markup.ClearList())
 }

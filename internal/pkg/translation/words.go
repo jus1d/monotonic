@@ -6,7 +6,7 @@ package translation
 
 import "monotonic/internal/pkg/models"
 
-var words = []models.Word{
+var Words = []models.Word{
 	{ ID: 1, Spanish: "Spanish", English: "English", PoS: "PoS" },
 	{ ID: 2, Spanish: "a", English: "to, at", PoS: "prep" },
 	{ ID: 3, Spanish: "abajo", English: "down, below, downward", PoS: "adv" },

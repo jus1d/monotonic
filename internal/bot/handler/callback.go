@@ -3,8 +3,8 @@ package handler
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"monotonic/internal/bot/markup"
-	"monotonic/internal/pkg/storage"
 	"monotonic/internal/pkg/template"
 	"monotonic/internal/pkg/translation"
 	"strconv"
@@ -13,12 +13,24 @@ import (
 	telegram "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func (h *Handler) OnClearList(ctx context.Context, u telegram.Update) {
-	userID := u.Message.From.ID
-	storage.ClearList(userID)
+func (h *Handler) OnHome(ctx context.Context, u telegram.Update) {
+	content := `<b>Yo, welcome home.</b>
+Use buttons below to do something, otherwise why are you here?`
+	h.EditMessage(u.CallbackQuery.Message, content, markup.Menu())
+}
 
-	// TODO: Add buttons
-	h.EditMessage(u.CallbackQuery.Message, "<b>Your practicing list evaporated</b>", nil)
+func (h *Handler) OnCollect(ctx context.Context, u telegram.Update) {
+	word := translation.GetRandomWord()
+	content := template.WordCard(word)
+
+	h.EditMessage(u.CallbackQuery.Message, content, markup.CollectWord(word.ID))
+}
+
+func (h *Handler) OnClearList(ctx context.Context, u telegram.Update) {
+	userID := u.CallbackQuery.From.ID
+	h.storage.ClearList(userID)
+
+	h.EditMessage(u.CallbackQuery.Message, "<b>Your practicing list evaporated</b>", markup.Home())
 }
 
 func (h *Handler) OnRandomWord(ctx context.Context, u telegram.Update) {
@@ -29,10 +41,11 @@ func (h *Handler) OnRandomWord(ctx context.Context, u telegram.Update) {
 }
 
 func (h *Handler) OnCollectAccept(ctx context.Context, u telegram.Update) {
+	slog.Debug("collect accept triggered")
 	query := u.CallbackData()
 	wordID, _ := extractInt(query)
 	userID := u.CallbackQuery.From.ID
-	storage.AddWord(userID, wordID)
+	h.storage.AddWord(userID, wordID)
 
 	word := translation.GetRandomWord()
 	content := template.WordCard(word)
@@ -51,11 +64,11 @@ func (h *Handler) OnPracticeAnswer(ctx context.Context, u telegram.Update) {
 	query := u.CallbackData()
 	wordID, _ := extractInt(query)
 	userID := u.CallbackQuery.From.ID
-	correct := translation.IsCorrectAnswer(userID, wordID)
+	correct := h.storage.IsCorrectAnswer(userID, wordID)
 
-	question, err := translation.GeneratePracticeQuestion(userID)
+	question, err := h.storage.GeneratePracticeQuestion(userID)
 	if err != nil {
-		h.SendTextMessage(userID, "Add some words for learning with /collect first!", nil)
+		h.SendTextMessage(userID, "Add some words for learning with /collect first!", markup.Collect())
 		return
 	}
 
@@ -69,15 +82,31 @@ func (h *Handler) OnPracticeAnswer(ctx context.Context, u telegram.Update) {
 	h.EditMessage(u.CallbackQuery.Message, fmt.Sprintf("%s\n\nTranslate to spanish: <b>%s</b>", previous, question.English), markup.PracticeOptions(question.Options))
 }
 
-func (h *Handler) OnCallbackPractice(ctx context.Context, u telegram.Update) {
+func (h *Handler) OnPractice(ctx context.Context, u telegram.Update) {
 	userID := u.CallbackQuery.From.ID
-	question, err := translation.GeneratePracticeQuestion(userID)
+	question, err := h.storage.GeneratePracticeQuestion(userID)
 	if err != nil {
-		h.EditMessage(u.CallbackQuery.Message, "Add some words for learning with /collect first!", nil)
+		h.EditMessage(u.CallbackQuery.Message, "Add some words for learning with /collect first!", markup.Collect())
 		return
 	}
 
 	h.EditMessage(u.CallbackQuery.Message, fmt.Sprintf("Translate to spanish: <b>%s</b>", question.English), markup.PracticeOptions(question.Options))
+}
+
+func (h *Handler) OnList(ctx context.Context, u telegram.Update) {
+	userID := u.CallbackQuery.From.ID
+	wordIDs, ok := h.storage.GetUserWords(userID)
+	if !ok {
+		h.EditMessage(u.CallbackQuery.Message, "Your learning list is empty.", markup.Home())
+		return
+	}
+
+	words := make([]string, 0)
+	for _, id := range wordIDs {
+		words = append(words, translation.GetWordByID(id).Spanish)
+	}
+
+	h.EditMessage(u.CallbackQuery.Message, strings.Join(words, "\n"), markup.ClearList())
 }
 
 func extractInt(data string) (int, bool) {

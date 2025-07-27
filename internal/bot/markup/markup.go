@@ -7,10 +7,21 @@ import (
 	telegram "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func RandomWord() *telegram.InlineKeyboardMarkup {
-	learnWordBtn := telegram.NewInlineKeyboardButtonData("Another one", "random_word")
+func Menu() *telegram.InlineKeyboardMarkup {
 	keyboard := telegram.NewInlineKeyboardMarkup(
-		telegram.NewInlineKeyboardRow(learnWordBtn),
+		telegram.NewInlineKeyboardRow(telegram.NewInlineKeyboardButtonData("Show random word", "random_word")),
+		telegram.NewInlineKeyboardRow(telegram.NewInlineKeyboardButtonData("Collect words", "collect")),
+		telegram.NewInlineKeyboardRow(telegram.NewInlineKeyboardButtonData("Practice", "practice")),
+		telegram.NewInlineKeyboardRow(telegram.NewInlineKeyboardButtonData("Learning list", "learning_list")),
+	)
+
+	return &keyboard
+}
+
+func RandomWord() *telegram.InlineKeyboardMarkup {
+	keyboard := telegram.NewInlineKeyboardMarkup(
+		telegram.NewInlineKeyboardRow(telegram.NewInlineKeyboardButtonData("Another one", "random_word")),
+		telegram.NewInlineKeyboardRow(telegram.NewInlineKeyboardButtonData("« Home", "home")),
 	)
 
 	return &keyboard
@@ -26,6 +37,32 @@ func CollectWord(wordID int) *telegram.InlineKeyboardMarkup {
 			{
 				telegram.NewInlineKeyboardButtonData("Practice", "practice"),
 			},
+			{
+				telegram.NewInlineKeyboardButtonData("« Home", "home"),
+			},
+		},
+	}
+}
+
+func Collect() *telegram.InlineKeyboardMarkup {
+	return &telegram.InlineKeyboardMarkup{
+		InlineKeyboard: [][]telegram.InlineKeyboardButton{
+			{
+				telegram.NewInlineKeyboardButtonData("Collect words", "collect"),
+			},
+			{
+				telegram.NewInlineKeyboardButtonData("« Home", "home"),
+			},
+		},
+	}
+}
+
+func Home() *telegram.InlineKeyboardMarkup {
+	return &telegram.InlineKeyboardMarkup{
+		InlineKeyboard: [][]telegram.InlineKeyboardButton{
+			{
+				telegram.NewInlineKeyboardButtonData("« Home", "home"),
+			},
 		},
 	}
 }
@@ -35,6 +72,9 @@ func ClearList() *telegram.InlineKeyboardMarkup {
 		InlineKeyboard: [][]telegram.InlineKeyboardButton{
 			{
 				telegram.NewInlineKeyboardButtonData("Clear", "clear_list"),
+			},
+			{
+				telegram.NewInlineKeyboardButtonData("« Home", "home"),
 			},
 		},
 	}
@@ -48,5 +88,8 @@ func PracticeOptions(options []models.Word) *telegram.InlineKeyboardMarkup {
 			telegram.NewInlineKeyboardButtonData(opt.Spanish, callback),
 		))
 	}
+	rows = append(rows, telegram.NewInlineKeyboardRow(
+		telegram.NewInlineKeyboardButtonData("« Home", "home"),
+	))
 	return &telegram.InlineKeyboardMarkup{InlineKeyboard: rows}
 }

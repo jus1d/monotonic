@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"monotonic/internal/bot/handler"
 	"monotonic/internal/pkg/config"
+	"monotonic/internal/pkg/storage"
 
 	telegram "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -23,7 +24,13 @@ func New(c *config.Config) (*Bot, error) {
 		return nil, err
 	}
 
-	h := handler.New(client)
+	// s, err := storage.New("./db/data.db")
+	// if err != nil {
+	// return nil, err
+	// }
+
+	s := storage.New()
+	h := handler.New(client, s)
 
 	return &Bot{
 		config:  c,
@@ -54,12 +61,15 @@ func (b *Bot) registerHandlers() {
 	b.handler.RegisterCommand("practice", b.handler.OnCommandPractice)
 	b.handler.RegisterCommand("list", b.handler.OnCommandList)
 
+	b.handler.RegisterCallback("home", b.handler.OnHome)
+	b.handler.RegisterCallback("collect", b.handler.OnCollect)
+	b.handler.RegisterCallback("learning_list", b.handler.OnList)
 	b.handler.RegisterCallback("random_word", b.handler.OnRandomWord)
 	b.handler.RegisterCallback("collect_accept", b.handler.OnCollectAccept)
 	b.handler.RegisterCallback("collect_skip", b.handler.OnCollectSkip)
 	b.handler.RegisterCallback("practice_answer", b.handler.OnPracticeAnswer)
 	b.handler.RegisterCallback("clear_list", b.handler.OnClearList)
-	b.handler.RegisterCallback("practice", b.handler.OnCallbackPractice)
+	b.handler.RegisterCallback("practice", b.handler.OnPractice)
 }
 
 // getUpdates returns a channel of updates from Telegram, using the given context.
@@ -88,17 +98,18 @@ func (b *Bot) handleUpdates(ctx context.Context, updates telegram.UpdatesChannel
 				if handlerFunc, ok := b.handler.GetCommandHandler(command); ok {
 					handlerFunc(ctx, update)
 				} else {
-					b.handler.SendTextMessage(update.Message.From.ID, "brotha eewwww, i didnt get you", nil)
+					b.handler.SendTextMessage(update.Message.From.ID, "Brotha eewwww, I didn't get you", nil)
 				}
 			}
 
 			if update.CallbackQuery != nil {
 				query := update.CallbackData()
+				slog.Debug("callback triggered", slog.String("query", query))
 				if handlerFunc, ok := b.handler.GetCallbackHandler(query); ok {
 					handlerFunc(ctx, update)
 					b.handler.DismissCallback(update)
 				} else {
-					b.handler.SendTextMessage(update.CallbackQuery.From.ID, "where tf you found this button?", nil)
+					b.handler.SendTextMessage(update.CallbackQuery.From.ID, "Where tf you found this button?", nil)
 				}
 			}
 		}

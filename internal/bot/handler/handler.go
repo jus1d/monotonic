@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log/slog"
 	"monotonic/internal/pkg/logger/sl"
+	"monotonic/internal/pkg/storage"
 	"strings"
 
 	telegram "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -15,13 +16,15 @@ type CallbackHandler func(ctx context.Context, update telegram.Update)
 
 type Handler struct {
 	bot              *telegram.BotAPI
+	storage          *storage.Storage
 	commandHandlers  map[string]CommandHandler
 	callbackHandlers map[string]CallbackHandler
 }
 
-func New(bot *telegram.BotAPI) *Handler {
+func New(bot *telegram.BotAPI, storage *storage.Storage) *Handler {
 	return &Handler{
 		bot:              bot,
+		storage:          storage,
 		commandHandlers:  make(map[string]CommandHandler),
 		callbackHandlers: make(map[string]CallbackHandler),
 	}
