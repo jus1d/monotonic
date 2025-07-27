@@ -1,0 +1,4 @@
+env: "dev"
+
+telegram:
+  token: "" # paste here yout telegram API token from Bot Father
