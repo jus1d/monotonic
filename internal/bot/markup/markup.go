@@ -9,8 +9,7 @@ import (
 
 func Menu() *telegram.InlineKeyboardMarkup {
 	keyboard := telegram.NewInlineKeyboardMarkup(
-		telegram.NewInlineKeyboardRow(telegram.NewInlineKeyboardButtonData("Show random word", "random_word")),
-		telegram.NewInlineKeyboardRow(telegram.NewInlineKeyboardButtonData("Collect words", "collect_start")),
+		telegram.NewInlineKeyboardRow(telegram.NewInlineKeyboardButtonData("Random word", "random_word")),
 		telegram.NewInlineKeyboardRow(telegram.NewInlineKeyboardButtonData("Practice", "practice_start")),
 		telegram.NewInlineKeyboardRow(telegram.NewInlineKeyboardButtonData("Learning list", "learning_list")),
 	)
@@ -31,24 +30,11 @@ func CollectWord(wordID int) *telegram.InlineKeyboardMarkup {
 	return &telegram.InlineKeyboardMarkup{
 		InlineKeyboard: [][]telegram.InlineKeyboardButton{
 			{
-				telegram.NewInlineKeyboardButtonData("Learn", fmt.Sprintf("collect_accept:%d", wordID)),
-				telegram.NewInlineKeyboardButtonData("Skip", fmt.Sprintf("collect_skip:%d", wordID)),
+				telegram.NewInlineKeyboardButtonData("Learn", fmt.Sprintf("add_to_learning_list:%d", wordID)),
+				telegram.NewInlineKeyboardButtonData("Skip", fmt.Sprintf("skip_word:%d", wordID)),
 			},
 			{
 				telegram.NewInlineKeyboardButtonData("Practice", "practice_start"),
-			},
-			{
-				telegram.NewInlineKeyboardButtonData("« Home", "home"),
-			},
-		},
-	}
-}
-
-func Collect() *telegram.InlineKeyboardMarkup {
-	return &telegram.InlineKeyboardMarkup{
-		InlineKeyboard: [][]telegram.InlineKeyboardButton{
-			{
-				telegram.NewInlineKeyboardButtonData("Collect words", "collect_start"),
 			},
 			{
 				telegram.NewInlineKeyboardButtonData("« Home", "home"),

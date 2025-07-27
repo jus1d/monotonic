@@ -57,16 +57,14 @@ func (b *Bot) Run(ctx context.Context) {
 func (b *Bot) registerHandlers() {
 	b.handler.RegisterCommand("start", b.handler.OnCommandStart)
 	b.handler.RegisterCommand("random", b.handler.OnCommandRandom)
-	b.handler.RegisterCommand("collect", b.handler.OnCommandCollect)
 	b.handler.RegisterCommand("practice", b.handler.OnCommandPractice)
 	b.handler.RegisterCommand("list", b.handler.OnCommandList)
 
 	b.handler.RegisterCallback("home", b.handler.OnHome)
-	b.handler.RegisterCallback("collect_start", b.handler.OnCollect)
 	b.handler.RegisterCallback("learning_list", b.handler.OnList)
 	b.handler.RegisterCallback("random_word", b.handler.OnRandomWord)
-	b.handler.RegisterCallback("collect_accept", b.handler.OnCollectAccept)
-	b.handler.RegisterCallback("collect_skip", b.handler.OnCollectSkip)
+	b.handler.RegisterCallback("add_to_learning_list", b.handler.OnCollectAccept)
+	b.handler.RegisterCallback("skip_word", b.handler.OnCollectSkip)
 	b.handler.RegisterCallback("practice_answer", b.handler.OnPracticeAnswer)
 	b.handler.RegisterCallback("clear_list", b.handler.OnClearList)
 	b.handler.RegisterCallback("practice_start", b.handler.OnPractice)

@@ -19,25 +19,18 @@ Use buttons below to do something, otherwise why are you here?`
 	h.EditMessage(u.CallbackQuery.Message, content, markup.Menu())
 }
 
-func (h *Handler) OnCollect(ctx context.Context, u telegram.Update) {
-	word := translation.GetRandomWord()
-	content := template.WordCard(word)
-
-	h.EditMessage(u.CallbackQuery.Message, content, markup.CollectWord(word.ID))
-}
-
 func (h *Handler) OnClearList(ctx context.Context, u telegram.Update) {
 	userID := u.CallbackQuery.From.ID
 	h.storage.ClearList(userID)
 
-	h.EditMessage(u.CallbackQuery.Message, "<b>Your practicing list evaporated</b>", markup.Home())
+	h.EditMessage(u.CallbackQuery.Message, "Your practicing list evaporated", markup.Home())
 }
 
 func (h *Handler) OnRandomWord(ctx context.Context, u telegram.Update) {
 	word := translation.GetRandomWord()
 	content := template.WordCard(word)
 
-	h.EditMessage(u.CallbackQuery.Message, content, markup.RandomWord())
+	h.EditMessage(u.CallbackQuery.Message, content, markup.CollectWord(word.ID))
 }
 
 func (h *Handler) OnCollectAccept(ctx context.Context, u telegram.Update) {
@@ -68,7 +61,7 @@ func (h *Handler) OnPracticeAnswer(ctx context.Context, u telegram.Update) {
 
 	question, err := h.storage.GeneratePracticeQuestion(userID)
 	if err != nil {
-		h.SendTextMessage(userID, "Add some words for learning with /collect first!", markup.Collect())
+		h.SendTextMessage(userID, "Add some words for learning with /random first!", markup.RandomWord())
 		return
 	}
 
@@ -86,7 +79,7 @@ func (h *Handler) OnPractice(ctx context.Context, u telegram.Update) {
 	userID := u.CallbackQuery.From.ID
 	question, err := h.storage.GeneratePracticeQuestion(userID)
 	if err != nil {
-		h.EditMessage(u.CallbackQuery.Message, "Add some words for learning with /collect first!", markup.Collect())
+		h.EditMessage(u.CallbackQuery.Message, "Add some words for learning with /random first!", markup.RandomWord())
 		return
 	}
 

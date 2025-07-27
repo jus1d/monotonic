@@ -18,7 +18,6 @@ Here is brief tour of what can I do:
 
 <i>Use ... - I will ...</i>
 <b>/random</b> - send you a random word's card.
-<b>/collect</b> - suggest you random words, if you know one - skip it, otherwise add to your practicing list, to remember it later.
 <b>/practice</b> - continiously send to you word-questions, and you should choose correct translation.
 <b>/list</b> - show your practicing list (you can clear it out of there).`
 
@@ -35,17 +34,6 @@ func (h *Handler) OnCommandRandom(ctx context.Context, u telegram.Update) {
 
 	message := telegram.NewMessage(u.Message.Chat.ID, content)
 	message.ParseMode = telegram.ModeHTML
-	message.ReplyMarkup = markup.RandomWord()
-
-	h.SendMessage(message)
-}
-
-func (h *Handler) OnCommandCollect(ctx context.Context, u telegram.Update) {
-	word := translation.GetRandomWord()
-	content := template.WordCard(word)
-
-	message := telegram.NewMessage(u.Message.Chat.ID, content)
-	message.ParseMode = telegram.ModeHTML
 	message.ReplyMarkup = markup.CollectWord(word.ID)
 
 	h.SendMessage(message)
@@ -55,7 +43,7 @@ func (h *Handler) OnCommandPractice(ctx context.Context, u telegram.Update) {
 	userID := u.Message.From.ID
 	question, err := h.storage.GeneratePracticeQuestion(userID)
 	if err != nil {
-		h.SendTextMessage(userID, "Add some words for learning with /collect first!", markup.Collect())
+		h.SendTextMessage(userID, "Add some words for learning with /random first!", markup.RandomWord())
 		return
 	}
 
