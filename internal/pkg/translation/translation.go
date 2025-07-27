@@ -42,8 +42,10 @@ func DescribePoS(pos string) string {
 		return "noun (feminine)"
 	case "nm/f":
 		return "noun (masculine/feminine)"
+	case "conj":
+		return "conjunction"
 	default:
-		return "unknown"
+		return pos
 	}
 }
 

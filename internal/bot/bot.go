@@ -97,6 +97,7 @@ func (b *Bot) handleUpdates(ctx context.Context, updates telegram.UpdatesChannel
 				slog.Info("callback received", slog.String("query", query))
 				if handlerFunc, ok := b.handler.GetCallbackHandler(query); ok {
 					handlerFunc(ctx, update)
+					b.handler.DismissCallback(update)
 				} else {
 					b.handler.SendTextMessage(update.CallbackQuery.From.ID, "where tf you found this button?", nil)
 				}

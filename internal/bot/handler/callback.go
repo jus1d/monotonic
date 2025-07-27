@@ -14,7 +14,6 @@ import (
 )
 
 func (h *Handler) OnClearList(ctx context.Context, u telegram.Update) {
-	defer h.DismissCallback(u)
 	userID := u.Message.From.ID
 	storage.ClearList(userID)
 
@@ -23,7 +22,6 @@ func (h *Handler) OnClearList(ctx context.Context, u telegram.Update) {
 }
 
 func (h *Handler) OnRandomWord(ctx context.Context, u telegram.Update) {
-	defer h.DismissCallback(u)
 	word := translation.GetRandomWord()
 	content := template.WordCard(word)
 
@@ -31,7 +29,6 @@ func (h *Handler) OnRandomWord(ctx context.Context, u telegram.Update) {
 }
 
 func (h *Handler) OnCollectAccept(ctx context.Context, u telegram.Update) {
-	defer h.DismissCallback(u)
 	query := u.CallbackData()
 	wordID, _ := extractInt(query)
 	userID := u.CallbackQuery.From.ID
@@ -44,7 +41,6 @@ func (h *Handler) OnCollectAccept(ctx context.Context, u telegram.Update) {
 }
 
 func (h *Handler) OnCollectSkip(ctx context.Context, u telegram.Update) {
-	defer h.DismissCallback(u)
 	word := translation.GetRandomWord()
 	content := template.WordCard(word)
 
@@ -52,7 +48,6 @@ func (h *Handler) OnCollectSkip(ctx context.Context, u telegram.Update) {
 }
 
 func (h *Handler) OnPracticeAnswer(ctx context.Context, u telegram.Update) {
-	defer h.DismissCallback(u)
 	query := u.CallbackData()
 	wordID, _ := extractInt(query)
 	userID := u.CallbackQuery.From.ID
@@ -66,9 +61,9 @@ func (h *Handler) OnPracticeAnswer(ctx context.Context, u telegram.Update) {
 
 	var previous string
 	if !correct {
-		previous = "🚩 <b>Incorrect :// Lets try next:</b>"
+		previous = "<b>Thats wrong :// Lets try next:</b>"
 	} else {
-		previous = "✅ <b>Correct! Next one:</b>"
+		previous = "<b>Correct! Next one:</b>"
 	}
 
 	h.EditMessage(u.CallbackQuery.Message, fmt.Sprintf("%s\n\nTranslate to spanish: <b>%s</b>", previous, question.English), markup.PracticeOptions(question.Options))
