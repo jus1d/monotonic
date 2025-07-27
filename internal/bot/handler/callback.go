@@ -2,31 +2,28 @@ package handler
 
 import (
 	"context"
-	"log/slog"
+	"fmt"
 	"monotonic/internal/bot/markup"
 	"monotonic/internal/pkg/storage"
 	"monotonic/internal/pkg/template"
 	"monotonic/internal/pkg/translation"
 	"strconv"
+	"strings"
 
 	telegram "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func (h *Handler) OnLearnWord(ctx context.Context, u telegram.Update) {
-	word := translation.GetRandomWord()
-	content := template.WordCard(word)
-
-	h.EditMessage(u.CallbackQuery.Message, content, markup.LearnWord())
-}
-
 func (h *Handler) OnClearList(ctx context.Context, u telegram.Update) {
+	defer h.DismissCallback(u)
 	userID := u.Message.From.ID
 	storage.ClearList(userID)
 
-	h.SendTextMessage(userID, "your practicing list emtied out", nil)
+	// TODO: Add buttons
+	h.EditMessage(u.CallbackQuery.Message, "<b>Your practicing list evaporated</b>", nil)
 }
 
 func (h *Handler) OnRandomWord(ctx context.Context, u telegram.Update) {
+	defer h.DismissCallback(u)
 	word := translation.GetRandomWord()
 	content := template.WordCard(word)
 
@@ -34,32 +31,62 @@ func (h *Handler) OnRandomWord(ctx context.Context, u telegram.Update) {
 }
 
 func (h *Handler) OnCollectAccept(ctx context.Context, u telegram.Update) {
-	wordID, _ := strconv.Atoi(markup.ExtractID(u.CallbackData(), "collect_accept"))
-	slog.Info("collect", slog.Any("query", u.CallbackData()))
+	defer h.DismissCallback(u)
+	query := u.CallbackData()
+	wordID, _ := extractInt(query)
 	userID := u.CallbackQuery.From.ID
-
 	storage.AddWord(userID, wordID)
 
-	h.SendTextMessage(userID, "✅ added to your list", nil)
-	h.OnCommandCollect(ctx, telegram.Update{Message: u.CallbackQuery.Message})
+	word := translation.GetRandomWord()
+	content := template.WordCard(word)
+
+	h.EditMessage(u.CallbackQuery.Message, content, markup.CollectWord(word.ID))
 }
 
 func (h *Handler) OnCollectSkip(ctx context.Context, u telegram.Update) {
-	h.SendTextMessage(u.CallbackQuery.From.ID, "⏭ skipped", nil)
-	h.OnCommandCollect(ctx, telegram.Update{Message: u.CallbackQuery.Message})
+	defer h.DismissCallback(u)
+	word := translation.GetRandomWord()
+	content := template.WordCard(word)
+
+	h.EditMessage(u.CallbackQuery.Message, content, markup.CollectWord(word.ID))
 }
 
 func (h *Handler) OnPracticeAnswer(ctx context.Context, u telegram.Update) {
-	data := markup.ExtractID(u.CallbackData(), "practice_answer")
-	wordID, _ := strconv.Atoi(data)
+	defer h.DismissCallback(u)
+	query := u.CallbackData()
+	wordID, _ := extractInt(query)
 	userID := u.CallbackQuery.From.ID
 	correct := translation.IsCorrectAnswer(userID, wordID)
 
-	if correct {
-		h.SendTextMessage(userID, "✅ Correct!", nil)
-	} else {
-		h.SendTextMessage(userID, "❌ Nope, try again", nil)
+	question, err := translation.GeneratePracticeQuestion(userID)
+	if err != nil {
+		h.SendTextMessage(userID, "Add some words for learning with /collect first!", nil)
+		return
 	}
 
-	h.OnCommandPractice(ctx, telegram.Update{Message: u.CallbackQuery.Message})
+	var previous string
+	if !correct {
+		previous = "🚩 <b>Incorrect :// Lets try next:</b>"
+	} else {
+		previous = "✅ <b>Correct! Next one:</b>"
+	}
+
+	h.EditMessage(u.CallbackQuery.Message, fmt.Sprintf("%s\n\nTranslate to spanish: <b>%s</b>", previous, question.English), markup.PracticeOptions(question.Options))
+}
+
+func (h *Handler) OnCallbackPractice(ctx context.Context, u telegram.Update) {
+	userID := u.CallbackQuery.From.ID
+	question, err := translation.GeneratePracticeQuestion(userID)
+	if err != nil {
+		h.EditMessage(u.CallbackQuery.Message, "Add some words for learning with /collect first!", nil)
+		return
+	}
+
+	h.EditMessage(u.CallbackQuery.Message, fmt.Sprintf("Translate to spanish: <b>%s</b>", question.English), markup.PracticeOptions(question.Options))
+}
+
+func extractInt(data string) (int, bool) {
+	parts := strings.Split(data, ":")
+	value, err := strconv.Atoi(parts[len(parts)-1])
+	return value, err == nil
 }

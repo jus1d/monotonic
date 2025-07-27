@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"monotonic/internal/bot/markup"
 	"monotonic/internal/pkg/storage"
 	"monotonic/internal/pkg/template"
@@ -14,11 +13,18 @@ import (
 )
 
 func (h *Handler) OnCommandStart(ctx context.Context, u telegram.Update) {
-	content := "<b>yoo.</b>\n\nif you are really into nerding new spanish words - welcome."
+	content := `<b>Yo, welcome to @monotonicbot! I will help you to improve your vocabulary.</b>
+
+Here is brief tour of what can I do:
+
+<i>Use ... - I will ...</i>
+<b>/random</b> - send you a random word's card.
+<b>/collect</b> - suggest you random words, if you know one - skip it, otherwise add to your practicing list, to remember it later.
+<b>/practice</b> - continiously send to you word-questions, and you should choose correct translation.
+<b>/list</b> - show your practicing list (you can clear it out of there).`
 
 	message := telegram.NewMessage(u.Message.Chat.ID, content)
 	message.ParseMode = telegram.ModeHTML
-	message.ReplyMarkup = markup.LearnWord()
 
 	h.SendMessage(message)
 }
@@ -49,7 +55,7 @@ func (h *Handler) OnCommandPractice(ctx context.Context, u telegram.Update) {
 	userID := u.Message.From.ID
 	question, err := translation.GeneratePracticeQuestion(userID)
 	if err != nil {
-		h.SendTextMessage(userID, "add some words with /collect first!", nil)
+		h.SendTextMessage(userID, "Add some words for learning with /collect first!", nil)
 		return
 	}
 
@@ -64,13 +70,12 @@ func (h *Handler) OnCommandList(ctx context.Context, u telegram.Update) {
 	userID := u.Message.From.ID
 	wordIDs, ok := storage.GetUserWords(userID)
 	if !ok {
-		h.SendTextMessage(userID, "your practicing list is empty.", nil)
+		h.SendTextMessage(userID, "Your learning list is empty.", nil)
 		return
 	}
 
 	words := make([]string, len(wordIDs), len(wordIDs))
 	for _, id := range wordIDs {
-		slog.Info("testing", slog.Any("id", id))
 		words = append(words, translation.GetWordByID(id).Spanish)
 	}
 	h.SendTextMessage(userID, strings.Join(words, "\n"), nil)

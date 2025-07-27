@@ -54,12 +54,12 @@ func (b *Bot) registerHandlers() {
 	b.handler.RegisterCommand("practice", b.handler.OnCommandPractice)
 	b.handler.RegisterCommand("list", b.handler.OnCommandList)
 
-	b.handler.RegisterCallback("learn_word", b.handler.OnLearnWord)
 	b.handler.RegisterCallback("random_word", b.handler.OnRandomWord)
 	b.handler.RegisterCallback("collect_accept", b.handler.OnCollectAccept)
 	b.handler.RegisterCallback("collect_skip", b.handler.OnCollectSkip)
 	b.handler.RegisterCallback("practice_answer", b.handler.OnPracticeAnswer)
 	b.handler.RegisterCallback("clear_list", b.handler.OnClearList)
+	b.handler.RegisterCallback("practice", b.handler.OnCallbackPractice)
 }
 
 // getUpdates returns a channel of updates from Telegram, using the given context.

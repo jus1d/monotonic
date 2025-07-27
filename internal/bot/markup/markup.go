@@ -3,22 +3,12 @@ package markup
 import (
 	"fmt"
 	"monotonic/internal/pkg/models"
-	"strings"
 
 	telegram "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func LearnWord() *telegram.InlineKeyboardMarkup {
-	learnWordBtn := telegram.NewInlineKeyboardButtonData("learn", "learn_word")
-	keyboard := telegram.NewInlineKeyboardMarkup(
-		telegram.NewInlineKeyboardRow(learnWordBtn),
-	)
-
-	return &keyboard
-}
-
 func RandomWord() *telegram.InlineKeyboardMarkup {
-	learnWordBtn := telegram.NewInlineKeyboardButtonData("more.", "random_word")
+	learnWordBtn := telegram.NewInlineKeyboardButtonData("Another one", "random_word")
 	keyboard := telegram.NewInlineKeyboardMarkup(
 		telegram.NewInlineKeyboardRow(learnWordBtn),
 	)
@@ -30,8 +20,11 @@ func CollectWord(wordID int) *telegram.InlineKeyboardMarkup {
 	return &telegram.InlineKeyboardMarkup{
 		InlineKeyboard: [][]telegram.InlineKeyboardButton{
 			{
-				telegram.NewInlineKeyboardButtonData("✅ Learn this", fmt.Sprintf("collect_accept:%d", wordID)),
-				telegram.NewInlineKeyboardButtonData("❌ Skip", fmt.Sprintf("collect_skip:%d", wordID)),
+				telegram.NewInlineKeyboardButtonData("Learn", fmt.Sprintf("collect_accept:%d", wordID)),
+				telegram.NewInlineKeyboardButtonData("Skip", fmt.Sprintf("collect_skip:%d", wordID)),
+			},
+			{
+				telegram.NewInlineKeyboardButtonData("Practice", "practice"),
 			},
 		},
 	}
@@ -41,7 +34,7 @@ func ClearList() *telegram.InlineKeyboardMarkup {
 	return &telegram.InlineKeyboardMarkup{
 		InlineKeyboard: [][]telegram.InlineKeyboardButton{
 			{
-				telegram.NewInlineKeyboardButtonData("clear all", "clear_list"),
+				telegram.NewInlineKeyboardButtonData("Clear", "clear_list"),
 			},
 		},
 	}
@@ -56,8 +49,4 @@ func PracticeOptions(options []models.Word) *telegram.InlineKeyboardMarkup {
 		))
 	}
 	return &telegram.InlineKeyboardMarkup{InlineKeyboard: rows}
-}
-
-func ExtractID(data, prefix string) string {
-	return strings.TrimPrefix(data, prefix+":")
 }
