@@ -58,6 +58,7 @@ func (b *Bot) registerHandlers() {
 	b.handler.RegisterCommand("random", b.handler.OnCommandRandom)
 	b.handler.RegisterCommand("practice", b.handler.OnCommandPractice)
 	b.handler.RegisterCommand("list", b.handler.OnCommandList)
+	b.handler.RegisterCommand("support", b.handler.OnCommandSupport)
 
 	b.handler.RegisterCallback("home", b.handler.OnHome)
 	b.handler.RegisterCallback("learning_list", b.handler.OnList)

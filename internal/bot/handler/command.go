@@ -73,3 +73,9 @@ func (h *Handler) OnCommandList(ctx context.Context, u telegram.Update) {
 	}
 	h.SendTextMessage(userID, strings.Join(words, "\n"), markup.ClearList())
 }
+
+func (h *Handler) OnCommandSupport(ctx context.Context, u telegram.Update) {
+	content := `In case you hit a bug, or if you want to suggest some ideas - contact me @jus1d`
+
+	h.SendTextMessage(u.Message.From.ID, content, nil)
+}
